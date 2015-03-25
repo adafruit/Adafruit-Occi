@@ -211,7 +211,7 @@ sub handle_wifi {
 
   diag('Configuring network :: ' . $config{wifi_ssid});
 
-  my ($ifconfig) = capture_string('ifconfig', '-s');
+  my ($ifconfig) = capture_string('ifconfig', '-a');
   if ($ifconfig !~ /wlan/) {
     diag('No wireless hardware found.');
   } elsif (defined $config{wifi_password}) {
@@ -348,7 +348,7 @@ sub get_file {
 
   local $/ = undef;
   open my $fh, '<', $path
-    or die "Failed opening $path: $!"; 
+    or die "Failed opening $path: $!";
   my $contents = <$fh>;
   close $fh;
 
@@ -375,7 +375,7 @@ sub put_file {
   }
 
   open my $fh, '>', $path
-    or die "Failed opening $path: $!"; 
+    or die "Failed opening $path: $!";
   print $fh $content;
   close $fh;
 }
