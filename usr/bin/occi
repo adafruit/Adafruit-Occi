@@ -17,6 +17,10 @@ F</boot/occidentalis.txt>.  The format is:
     # wifi configuration details:
     wifi_ssid=Your Network Here
     wifi_password=your password here
+    # optionally add this if you don't broadcast SSID
+    wifi_scan_ssid=1
+    # optionally specify the key management
+    wifi_key_mgmt=WPA_PSK
 
 Blank lines and comments starting with C<#> will be ignored.  Keys are
 case-insensitive.
@@ -111,7 +115,7 @@ sub handle_selftest {
 
   my %allowed_keys = map { $_ => 1} qw(
     hostname
-    wifi_password wifi_ssid
+    wifi_password wifi_ssid wifi_key_mgmt wifi_scan_ssid
   );
 
   diag('Checking configuration for basic sanity.');
@@ -221,7 +225,17 @@ sub handle_wifi {
       $config{'wifi_password'}
     );
 
-    $wpa_config = <<"WPA";
+  my $extraConfig = "";
+  if (defined $config{wifi_scan_ssid}) {
+	$extraConfig = "	scan_ssid=$config{wifi_scan_ssid}\n";
+  }
+ 
+  if (defined $config{wifi_key_mgmt}) {
+	$extraConfig = "$extraConfig	key_mgmt=$config{wifi_key_mgmt}\n";
+  }
+  $wpa_config =~ s/\}/$extraConfig\}/;
+  
+  $wpa_config = <<"WPA";
 # $blurb
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
